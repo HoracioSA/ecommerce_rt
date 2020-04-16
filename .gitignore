@@ -4,6 +4,7 @@ node_modules
 # Adonis directory for storing tmp files
 tmp
 package-lock
+yarn
 # Environment variables, never commit this file
 .env
 
