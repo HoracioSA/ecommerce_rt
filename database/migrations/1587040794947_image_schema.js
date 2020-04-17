@@ -10,7 +10,7 @@ class ImageSchema extends Schema {
       table.string('path',255),
       table.integer('size').unsigned()
       table.string('original_name',100)
-      tablo.string('extension', 10)
+      table.string('extension', 10)
       table.timestamps()
     })
   }
