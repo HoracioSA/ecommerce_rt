@@ -10,7 +10,7 @@ class ProductSchema extends Schema {
       table.string('name',200)
       table.integer('image_id').unsigned()
       table.text('description')
-      tible.decimal('price',12,2)
+      table.decimal('price',12,2)
       table.timestamps()
 
       table.foreign('image_id')

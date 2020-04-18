@@ -15,7 +15,6 @@ class OrderSchema extends Schema {
       .inTable('users')
       .onDelete('cascade')
       table.timestamps()
-      table.timestamps()
     })
   }
 
