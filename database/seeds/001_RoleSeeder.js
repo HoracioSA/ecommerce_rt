@@ -18,17 +18,17 @@ class RoleSeeder {
     // Create Admin Role
      await Role.create({
       name: 'Admin',
-      slug:'admin',
+      slug:'admin_a',
       description:'Administrator of the system.'
     })
     await Role.create({
-      name:'Maneger',
-      slug:'maneger',
+      name:'Maneger_01',
+      slug:'maneger_a',
       description:'Maneger of the system'
     })
     await Role.create({
-      name:'Client',
-      slug:'client',
+      name:'Client_01',
+      slug:'client_a',
       description:'Client of the shop'
     })
   }
