@@ -12,4 +12,4 @@ Route.group(()=>{
     Route.get('reset-password','AuthController.remember').as('auth.remember')
     Route.put('reset-password','AuthController.reset').as('auth.reset')
 
-}).prefix('auth/v1').namespace('Auth')
+}).prefix('v1').namespace('Auth')

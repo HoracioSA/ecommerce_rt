@@ -1,17 +1,44 @@
 'use strict'
-
+const Database = use('Database')
+const User = use('App/Models/User')
+const Role = use('Role')
 class AuthController {
     async register({request, response}){
-
+        const transaction = await Database.beginTransaction()
+        try {
+            const {name, surname, email, password}= request.all()
+            const user = await User.create({name, surname, email, password}, transaction)
+            const UserRole= await Role.findBy('slug', 'client_a')
+            await user.roles().attach([UserRole.id],null, transaction)
+            await transaction.commit()
+            return response.status(201).send({data: user})
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(400).send({message:'Something wents wrong with register!'})
+            
+        }
     }
     async login({request, response, auth}){
-
+        const {email, password}=request.all()
+        let data = await auth.withRefreshToken().attempt(email,password)
+        return response.send({data})
     }
 
     async refresh({request, response, auth}){
-        
+        var refresh_token = request.input('refresh_token')
+        if(!refresh_token){
+            refresh_token =request.header('refresh_token')
+        }
+        const user = await auth.newRefreshToken().generateForRefreshToken(refresh_token)
+        return response.send({data: user})
     }
     async logout({request, response, auth}){
+        let refresh_token = request.input('refresh_token')
+        if (!refresh_token) {
+            refresh_token =request.header('refresh_token')
+        }
+        await auth.authenticator('jwt').revokeTokens([refresh_token], true)
+        return response.status(204).send({})
         
     }
     async forgot({request, response }){
@@ -21,7 +48,7 @@ class AuthController {
         
     }
     async reset({request, response}){
-        
+
     }
 }
 
