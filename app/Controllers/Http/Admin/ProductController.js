@@ -7,6 +7,7 @@
 /**
  * Resourceful controller for interacting with products
  */
+const Product = use('App/Models/Product')
 class ProductController {
   /**
    * Show a list of all products.
@@ -16,8 +17,16 @@ class ProductController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.view
+   * @param {object} ctx.pagination
    */
-  async index ({ request, response, view }) {
+  async index ({ request, response, pagination}) {
+    const name = request.input('name')
+    const select = Product.query()
+    if (name) {
+      select.where('name', 'ILIKE', `%${name}%`)
+    }
+    const products = await select.paginate(pagination.page, pagination.limit)
+    return response.send(products)
   }
 
   /**
@@ -41,7 +50,19 @@ class ProductController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
+    try {
+      
+      const {name, image_id, description, price}= request.all()
+      const products =await Product.create({name, image_id, description, price})
+      return response.status(201).send(products)
+    } catch (error) {
+      return response.status(400).send({
+        message:'Something wrong in storing the data'
+      })
+      
+    }
   }
+
 
   /**
    * Display a single product.
@@ -52,7 +73,9 @@ class ProductController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params, request, response, view }) {
+  async show ({ params:{id}, request, response, view }) {
+    const product = await Product.findOrFail(id)
+    return response.send(product)
   }
 
   /**
@@ -75,7 +98,13 @@ class ProductController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params:{id}, request, response }) {
+    const product = await Product.findOrFail(id)
+    const {name, image_id, description, price}= request.all()
+    product.merge({name,image_id, description, price})
+    await product.save()
+    return response.send(product)
+
   }
 
   /**
@@ -86,7 +115,17 @@ class ProductController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async destroy ({ params, request, response }) {
+  async destroy ({ params:{id}, response }) {
+
+    const product = await Product.findOrFail(id)
+    try {
+      await product.delete()
+      return response.status(204).send()
+    } catch (error) {
+      return response.status(500).send({
+        message:'Something was wrong for deleting tis product'
+      })
+    }
   }
 }
 
