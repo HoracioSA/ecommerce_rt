@@ -22,4 +22,4 @@ Route.group(()=>{
     Route.resource('users', 'UserController').apiOnly()
     Route.resource('images', 'ImageController').apiOnly()
 
-}).prefix('v1').namespace('Admin')
+}).prefix('v1/admin').namespace('Admin')
