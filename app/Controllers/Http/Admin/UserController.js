@@ -102,7 +102,7 @@ class UserController {
    */
   async update ({ params:{id}, request, response }) {
     const user = await User.findOrFail(id)
-    const userData =request.all(['name', 'surname', 'password', 'email', 'image_id'])
+    const userData =request.only(['name', 'surname', 'password', 'email', 'image_id'])
     user.merge(userData)
     await user.save()
     return response.send(user)
