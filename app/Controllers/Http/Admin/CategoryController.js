@@ -19,9 +19,9 @@ class CategoryController {
    * @param {object} ctx.pagination
    * 
    */
-  async index ({ request, response, view, pagination }) {
+  async index ({ request, response, pagination }) {
     const title = request.input('title')
-    const search = Category.query() 
+    const search = await Category.query() 
     if (title) {
       search.where('title', 'ILIKE', `%${title}%`)
     }
