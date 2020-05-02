@@ -62,8 +62,30 @@ class CouponController {
         const coupon = await Coupon.create(couponData, trx)
         // Starts service layer
         const service = new Service(coupon, trx)
+        // To insert the relation on DB
+        if (users && users.length >0) {
+          await service.syncUsers(users)
+          can_use_for.client= true
+        }
+        if (products && products.length >0) {
+          await service.syncProducts(products)
+          can_use_for.product= true
+        }
+        if (can_use_for.product && can_use_for.client) {
+          coupon.can_use_for = 'product_client'
+        }else if(can_use_for.product && !can_use_for.client){
+          coupon.can_use_for= 'product'
+        }else if (!can_use_for.product && can_use_for.client){
+          coupon.can_use_for='client'
+        } else {coupon.can_use_for='all'}
+        await coupon.save()
+        await trx.commit()
+        return response.status(201).send(coupon)
     } catch (error) {
-      
+      await trx.rollback()
+      return response.status(400).send({
+        message:'It fail to create a coupon'
+      })
     }
   }
 
@@ -89,7 +111,50 @@ class CouponController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params:{id}, request, response }) {
+    const trx =await Database.beginTransaction()
+    var coupon = await Coupon.findOrFail(id)
+    var can_use_for ={
+      client:false,
+      product:false
+    }
+    try {
+      const couponData= request.
+      only([
+        'code',
+        'discount',
+        'valid_from',
+        'valid_until',
+        'type',
+        'recuesive']) 
+        coupon.merge(couponData)
+        const {users, products}=request.only(['users','products'])
+        const service = new Service(coupon, trx)
+        if (users && users.length >0) {
+          await service.syncUsers(users)
+          can_use_for.client= true
+        }
+        if(products && products.length >0){
+          can_use_for.product = true
+        }
+        if (can_use_for.product && can_use_for.client) {
+          coupon.can_use_for = 'product_client'
+        }else if(can_use_for.product && !can_use_for.client){
+          coupon.can_use_for= 'product'
+        }else if (!can_use_for.product && can_use_for.client){
+          coupon.can_use_for='client'
+        } else {coupon.can_use_for='all'}
+        await coupon.save(trx)
+        await trx.commit()
+        return response.send(coupon)
+
+    } catch (error) {
+      await trx.rollback()
+      return response.status(400).send({
+        message:'It fail to create a coupon'
+      })
+    }
+
   }
 
   /**
