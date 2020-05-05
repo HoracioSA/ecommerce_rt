@@ -23,6 +23,16 @@ class OrderService{
         }))
     }
     async canApply_Discount(coupon){
+        // Verify the date
+        const now = new Date().getTime()
+        if (now > coupon.valid_from
+            .getTime()||(typeof coupon.valid_until =='object' && coupon.valid_until
+            .getTime()<now)) {
+                // 1-Verify if the coupon is going to be valid
+                // 2-verify is there is an expiration date
+                // 3-If there is an expiration date, verify if the coupon already expired
+            return true
+        }
         // pluck= for removing key association with id
         const couponProduct=await Database
             .from('cupon_product')

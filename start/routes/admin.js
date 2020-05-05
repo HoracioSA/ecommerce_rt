@@ -17,9 +17,12 @@ Route.group(()=>{
     /**
      * Products Ressurce routes
      */
+    Route.post('orders/:id/discount', 'OrderController.applyDiscount')
+    Route.delete('orders/:id/discount', 'OrderController.removeDiscount')
+
     Route.resource('orders', 'OrderController').apiOnly()
 
     Route.resource('users', 'UserController').apiOnly()
     Route.resource('images', 'ImageController').apiOnly()
 
-}).prefix('v1/admin').namespace('Admin')
+}).prefix('v1/admin').namespace('Admin').middleware(['auth', 'is:(admin_a ||maneger_a)'])

@@ -4,6 +4,13 @@
 const Model = use('Model')
 
 class Discount extends Model {
+    // Hook for updating discount
+    static boot(){
+        super.boot()
+        this.addHook('beforeSave', 'DiscountHook.calculateValues')
+        this.addHook('afterSave', 'DiscountHook.decrementCoupons')
+        this.addHook('afterDelete', 'DiscountHook.incrementCoupons')
+    }
     static get table(){
         return 'cupon_order'
     }
