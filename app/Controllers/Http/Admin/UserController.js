@@ -4,6 +4,8 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const User = use('App/Models/User')
+const Transformer = use('App/Transformers/Admin/UserTransformer')
+
 /**
  * Resourceful controller for interacting with users
  */
@@ -15,11 +17,11 @@ class UserController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
-   * @param {View} ctx.view
+   * @param {View} ctx.transform
    * @param {Response} ctx.pagination
    * 
    */
-  async index ({ request, response, pagination }) {
+  async index ({ request, response, pagination, transform }) {
     const name = request.input('name')
     const select = User.query() 
     if (name) {
@@ -27,21 +29,9 @@ class UserController {
       search.orWhere('surname', 'ILIKE', `%${name}%`)
       search.orWhere('email', 'ILIKE', `%${name}%`)
     }
-    const users = await select.paginate(pagination.page, pagination.limit)
+    let users = await select.paginate(pagination.page, pagination.limit)
+    users =await transform.paginate(users, Transformer)
     return response.send(users)
-  }
-
-  /**
-   * Render a form to be used for creating a new user.
-   * GET users/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-    
   }
 
   /**
@@ -52,11 +42,12 @@ class UserController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, transform }) {
     try {
       
       const userData = request.only(['name', 'surname', 'email', 'password', 'image_id'])
-      const user = await User.create(userData)
+      let user = await User.create(userData)
+      user=await transform.item(user, Transformer)
       return response.status(201).send(user)
     } catch (error) {
       return response.status(400).send({
@@ -75,23 +66,13 @@ class UserController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params:{id}, request, response, view }) {
-    const user = await User.findOrFail(id)
+  async show ({ params:{id},response, transform }) {
+    var user = await User.findOrFail(id)
+    user = await transform.item(user, Transformer)
     return response.send(user)
   }
 
-  /**
-   * Render a form to update an existing user.
-   * GET users/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
+  
   /**
    * Update user details.
    * PUT or PATCH users/:id
@@ -100,11 +81,12 @@ class UserController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params:{id}, request, response }) {
-    const user = await User.findOrFail(id)
+  async update ({ params:{id}, request, response, transform }) {
+    var user = await User.findOrFail(id)
     const userData =request.only(['name', 'surname', 'password', 'email', 'image_id'])
     user.merge(userData)
     await user.save()
+    user=await transform.item(user, Transformer)
     return response.send(user)
   }
 

@@ -26,3 +26,38 @@ Run the following command to run startup migrations.
 ```js
 adonis migration:run
 ```
+ async index ({ request, response, pagination}) {
+    const {status, id} =request.only(['status','id'])
+    const query = await Order.query()
+    if (status && id) {
+      query.where('status', status)
+      query.orWhere('id', 'ILIKE', `%${id}%`)
+    }else if (status) {
+      query.where('status', status)
+    }else if (id) {
+      query.where('id', 'ILIKE', `%${id}%`)
+    }
+    const orders = query.paginate(pagination.page, pagination.limit)
+    return response.send(orders)
+  }
+
+  async index ({ request, response, pagination}) {
+    const {status, id} = request.only(['status','id'])
+    let orders =[]
+    
+    if (status && id) {
+      orders =await Order.query()
+      .where('status', status)
+      .orWhere('id', 'ILIKE', `%${id}%`)
+      .paginate(pagination.page, pagination.limit)
+    }else if (status) {
+      await Order.query().where('status', status)
+      .paginate(pagination.page, pagination.limit)
+    }else if (id) {
+     await Order.query()
+      .where('id', 'ILIKE', `%${id}%`)
+      .paginate(pagination.page, pagination.limit)
+
+    }
+    return response.send(orders)
+  }
