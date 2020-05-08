@@ -8,6 +8,8 @@ const Database =use('Database')
 const Service=use('App/Services/Order/OrderService')
 const Coupon = use('App/Models/Coupon')
 const Discount =use('App/Models/Discount')
+const OrderTransformer = use('App/Transformers/Admin/OrderTransformer')
+
 /**
  * Resourceful controller for interacting with orders
  */
@@ -20,8 +22,10 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    * @param {View} ctx.pagination
+   * @param {View} ctx.pagination
+   * 
    */
-  async index ({ request, response, pagination}) {
+  async index ({ request, response, pagination, transform}) {
     const {status, id} =request.only(['status','id'])
     let orders = [];
     const query = Order.query();
@@ -39,7 +43,7 @@ class OrderController {
     else {
       orders = await query.paginate(pagination.page, pagination.limit);
     }
-    
+    orders=await transform.paginate(orders, OrderTransformer)
     return response.send(orders)
   }
 
