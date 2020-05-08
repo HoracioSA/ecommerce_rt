@@ -21,12 +21,18 @@ class ProductController {
    */
   async index ({ request, response, pagination}) {
     const name = request.input('name')
-    const search = await Product.query()
+    let products =[]
+    //const search = await Product.query()
     if (name) {
-      search.where('name', 'ILIKE', `%${name}%`)
 
+      products =await Product
+      .query()
+      .where('name', 'ILIKE', `%${name}%`)
+      .paginate(pagination.page, pagination.limit)
+    }else {
+      products = await Product.query()
+      .paginate(pagination.page, pagination.limit)
     }
-    const products = await search.paginate(pagination.page, pagination.limit)
     return response.send(products)
   }
 

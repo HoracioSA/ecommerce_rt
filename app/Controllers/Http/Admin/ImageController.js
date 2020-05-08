@@ -25,7 +25,7 @@ class ImageController {
   async index ({response, pagination }) {
     const images = await Image
     .query()
-    .orderBY('id', 'DESC')
+    .orderBy('id', 'DESC')
     .paginate(
       pagination.page, 
       pagination.limit)
@@ -50,13 +50,13 @@ class ImageController {
       let images =[]
       // If single upload = manage_single_upload
 
-      if (fileJar.files) {
+      if (!fileJar.files) {
         const file = await manage_single_upload(fileJar) 
         if (file.moved()) {
           const image = await Image.create({
             path: file.fileName,
             size: file.size,
-            original_name = file.clientName,
+            original_name: file.clientName,
             extension: file.subtype
           })
           images.push(image)
@@ -143,10 +143,8 @@ class ImageController {
     const image = await Image.findOrFail(id)
     try {
       let filepath = Helpers.publicPath(`uploads/${image.path}`)
-      await fs.unlink(filepath, err=>{
-        if(!err)
+      fs.unlinkSync(filepath)
         await image.delete()  
-      })
       return response.status(204).send()
     } catch (error) {
       return response.status(400).send({

@@ -20,13 +20,20 @@ class CategoryController {
    * 
    */
   async index ({ request, response, pagination }) {
-    const title = request.input('title')
-    const search = await Category.query() 
+    const title = request.input('title');
+    let categories = [];
+    // const search = await Category.query() 
     if (title) {
-      search.where('title', 'ILIKE', `%${title}%`)
+      categories = await Category
+      .query()
+      .where('title', 'ILIKE', `%${title}%`)
+      .paginate(pagination.page, pagination.limit);
+    } else {
+      categories = await Category
+      .query()
+      .paginate(pagination.page, pagination.limit);
     }
-    const categories = await search.paginate(pagination.page, pagination.limit)
-    return response.send(categories)
+    return response.send(categories);
   }
 
   /**

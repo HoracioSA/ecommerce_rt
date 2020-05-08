@@ -5,7 +5,7 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const Order = use('App/Models/Order')
 const Database =use('Database')
-const Service=use('App/Services/Order/OrderService') 
+const Service=use('App/Services/Order/OrderService')
 const Coupon = use('App/Models/Coupon')
 const Discount =use('App/Models/Discount')
 /**
@@ -23,18 +23,26 @@ class OrderController {
    */
   async index ({ request, response, pagination}) {
     const {status, id} =request.only(['status','id'])
-    const query = await Order.query()
+    let orders = [];
+    const query = Order.query();
     if (status && id) {
-      query.where('status', status)
+      orders= await query.where('status', status)
       query.orWhere('id', 'ILIKE', `%${id}%`)
+      .paginate(pagination.page, pagination.limit)
     }else if (status) {
-      query.where('status', status)
+      orders = await query.where('status', status)
+      .paginate(pagination.page, pagination.limit)
     }else if (id) {
-      query.where('id', 'ILIKE', `%${id}%`)
+      orders = await query.where('id', 'ILIKE', `%${id}%`)
+      .paginate(pagination.page, pagination.limit)
     }
-    const orders = query.paginate(pagination.page, pagination.limit)
+    else {
+      orders = await query.paginate(pagination.page, pagination.limit);
+    }
+    
     return response.send(orders)
   }
+
 
   /**
    * Create/save a new order.
@@ -91,7 +99,7 @@ class OrderController {
     const trx = await Database.beginTransation()
     try {
       
-      const User_Order, {items}= request.all(['user_id', 'status'])
+      const {User_Order, items}= request.all(['user_id', 'status'])
       order.merge(User_Order)
       const service = new Service(order,trx)
       await service.update_Order_Items(items)
