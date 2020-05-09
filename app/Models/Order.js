@@ -15,7 +15,7 @@ class Order extends Model {
     coupons(){
         return this.belongsToMany('App/Models/Coupon')
     }
-    discount(){
+    discounts(){
         return this.hasMany('App/Models/Discount')
     }
     user(){

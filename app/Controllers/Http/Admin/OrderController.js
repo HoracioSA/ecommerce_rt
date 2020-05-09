@@ -57,23 +57,24 @@ class OrderController {
    * @param {Response} ctx.response
    */
   async store ({ request, response }) {
-    const trx =await Database.beginTransation()
+    const trx =await Database.beginTransaction()
     try {
       const {user_id, items, status}=request.all()
       let order =await Order.create({user_id, status}, trx)
       const service = new Service(order, trx)
       if (items && items.length>0) {
         await service.syncItems_Order(items)
-        await trx.commit()
-        return response.status(201).send(order)
       }
+      await trx.commit()
+      order= await Order.find(order.id)
+      return response.status(201).send(order)
     } catch (error) {
       await trx.rollback()
       return response.status(400).send({
         message:'It was not possible to create the order'
       })
       
-    }
+    } 
   }
 
   /**
@@ -100,7 +101,7 @@ class OrderController {
    */
   async update ({ params:{id}, request, response }) {
     const order= await Order.findOrFail(id)
-    const trx = await Database.beginTransation()
+    const trx = await Database.beginTransaction()
     try {
       
       const {User_Order, items}= request.all(['user_id', 'status'])

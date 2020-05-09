@@ -6,7 +6,7 @@
 const Image = use('App/Models/Image')
 const Helpers =use('App/Helpers')
 const fs = use('fs')
-const Transformer=use('App/Transformers/Admin/CategoryTransformer')
+const Transformer=use('App/Transformers/Admin/ImageTransformer')
 const {manage_single_upload} = use('App/Helpers')
 const {manage_multiple_upload} = use('App/Helpers')
 
@@ -21,16 +21,16 @@ class ImageController {
    * @param {object} ctx
    * @param {Request} ctx.request
    * @param {Response} ctx.response
-   * @param {TransformerWith} ctx.transformer
+   * @param {TransformerWith} ctx.transform
    */
-  async index ({response, pagination, transformer }) {
-    var images = await Image
+  async index ({response, pagination, transform }) {
+    let images = await Image
     .query()
     .orderBy('id', 'DESC')
     .paginate(
       pagination.page, 
       pagination.limit)
-      images = await transformer.paginate(images, Transformer)
+      images = await transform.paginate(images, Transformer)
     return response.send(images)
   }
 

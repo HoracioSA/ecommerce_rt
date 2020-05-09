@@ -3,8 +3,8 @@
 const BumblebeeTransformer = use('Bumblebee/Transformer')
 const UserTransformer = use('App/Transformers/Admin/UserTransformer')
 const OrderItemTransformer = use('App/Transformers/Admin/OrderItemTransformer')
-const CouponTransformer = use('App/Transformers/Admin/CouponsTransformer')
-const DiscountTransformer = use('App/Transformers/Admin/DiscountsTransformer')
+const CouponTransformer = use('App/Transformers/Admin/CouponTransformer')
+const DiscountTransformer = use('App/Transformers/Admin/DiscountTransformer')
 
 
 
@@ -16,7 +16,7 @@ const DiscountTransformer = use('App/Transformers/Admin/DiscountsTransformer')
  */
 class OrderTransformer extends BumblebeeTransformer {
   availableInclude(){
-    return ['user', 'coupons', 'items','discounts']
+    return ['user', 'cupons', 'items','discounts']
   }
   /**
    * This method is used to transform the data.
@@ -39,15 +39,15 @@ class OrderTransformer extends BumblebeeTransformer {
     return this.item(order.getRelated('user'), UserTransformer)
   }
   includeItems(){
-    return this.item(order.getRelated('items'), OrderItemTransformer)
+    return this.collection(order.getRelated('items'), OrderItemTransformer)
 
   }
-  includeCoupons(){
-    return this.item(order.getRelated('coupons'), CouponTransformer)
+  includeCupons(){
+    return this.collection(order.getRelated('cupons'), CouponTransformer)
 
   }
   includeDiscounts(){
-    return this.item(order.getRelated('discounts'), DiscountTransformer)
+    return this.collection(order.getRelated('discounts'), DiscountTransformer)
 
   }
 }

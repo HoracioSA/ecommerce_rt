@@ -6,7 +6,8 @@
 const Coupon = use('App/Models/Coupon')
 const Database = use('Database')
 const Service = use('App/Services/Coupon/CouponService')
-const Transformer = use('App/Transformers/Admin/CouponsTransformer')
+const Transformer = use('App/Transformers/Admin/CouponTransformer ')
+
 
 /**
  * Resourceful controller for interacting with coupons

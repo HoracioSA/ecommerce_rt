@@ -10,12 +10,10 @@ class CuponOrderSchema extends Schema {
       table.integer('cupon_id').unsigned()
       table.integer('order_id').unsigned()
       table.decimal('discount',12,2).defaultTo(0.0)
+      table.timestamps()
       
       table.foreign('cupon_id').references('id').inTable('cupons').onDelete('cascade')
       table.foreign('order_id').references('id').inTable('orders').onDelete('cascade')
-
-
-      table.timestamps()
     })
   }
 
