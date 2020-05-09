@@ -56,17 +56,18 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, transform }) {
     const trx =await Database.beginTransaction()
     try {
       const {user_id, items, status}=request.all()
-      let order =await Order.create({user_id, status}, trx)
+      var order =await Order.create({user_id, status}, trx)
       const service = new Service(order, trx)
       if (items && items.length>0) {
         await service.syncItems_Order(items)
       }
       await trx.commit()
       order= await Order.find(order.id)
+      order =await transform.include('users,items').item(order, OrderTransformer)
       return response.status(201).send(order)
     } catch (error) {
       await trx.rollback()
@@ -86,8 +87,9 @@ class OrderController {
    * @param {Response} ctx.response
    * @param {View} ctx.view
    */
-  async show ({ params:{id}, response, }) {
-    const order = await Order.findOrFail(id)
+  async show ({ params:{id}, response, transform}) {
+    var order = await Order.findOrFail(id)
+    order = await transform.include('items,user,discounts').item(order, OrderTransformer)
     return response.send(order)
   }
 
@@ -99,8 +101,8 @@ class OrderController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params:{id}, request, response }) {
-    const order= await Order.findOrFail(id)
+  async update ({ params:{id}, request, response, transform }) {
+    let order= await Order.findOrFail(id)
     const trx = await Database.beginTransaction()
     try {
       
@@ -110,6 +112,7 @@ class OrderController {
       await service.update_Order_Items(items)
       await order.save(trx)
       await trx.commit()
+      order=await transform.include('items,user,discounts,cupons').item(order, OrderTransformer)
       return response.send(order)
     } catch (error) {
       await trx.rollback()
@@ -143,10 +146,10 @@ class OrderController {
       })
     }
   }
-  async applyDiscount({params:{id}, request, response}){
+  async applyDiscount({params:{id}, request, response, transform}){
     const {code}=request.all()
     const coupon = await Coupon.findByOrFail('code', code.toUpperCase())
-    const order =await Order.findOrFail(id)
+    var order =await Order.findOrFail(id)
     var discount, information ={}
     try {
       /**
@@ -166,7 +169,9 @@ class OrderController {
       }else{
         information.message='Was not possible to apply this coupon!'
         information.success=false
-      }return response.send({order, information})
+      }
+      order =await transform.include('items,user,discounts,cupons').item(order, OrderTransformer)
+      return response.send({order, information})
     } catch (error) {
       return response.status(400).send({
         message:'Error to apply coupon'

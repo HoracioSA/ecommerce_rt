@@ -1,6 +1,6 @@
 'use strict'
 
-const OrderHook = exports = module.exports = {}
+const OrderHook = (exports = module.exports = {})
 
 OrderHook.updateValues = async (model) => {
    model.$sideLoaded.subtotal = await  model.items().getSum('subtotal')

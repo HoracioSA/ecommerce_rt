@@ -34,5 +34,8 @@ Route.group(()=>{
         ]
     ]))
     Route.resource('images', 'ImageController').apiOnly()
+    
+    // Dashboard Route
+    Route.get('dashboard', 'DashboardController.index').as('dashboard')
 
 }).prefix('v1/admin').namespace('Admin').middleware(['auth', 'is:(admin_a ||maneger_a)'])

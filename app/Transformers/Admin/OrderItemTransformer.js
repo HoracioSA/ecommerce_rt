@@ -1,6 +1,7 @@
 'use strict'
 
 const BumblebeeTransformer = use('Bumblebee/Transformer')
+const ProductTransformer = use('App/Transformers/Admin/ProductTransformer')
 
 /**
  * OrderItemTransformer class
@@ -9,6 +10,9 @@ const BumblebeeTransformer = use('Bumblebee/Transformer')
  * @constructor
  */
 class OrderItemTransformer extends BumblebeeTransformer {
+  defaultInclude(){
+    return ['product']
+  }
   /**
    * This method is used to transform the data.
    */
@@ -19,6 +23,9 @@ class OrderItemTransformer extends BumblebeeTransformer {
      subtotal:model.subtotal,
      quantity:model.quantity
     }
+  }
+  includeProduct(orderItem){
+    return this.item(orderItem.getRelated('product'),ProductTransformer)
   }
 }
 

@@ -24,7 +24,7 @@ class DiscountTransformer extends BumblebeeTransformer {
     }
   }
   includeCoupon(discount){
-    return this.item(discount.getRelated('coupon'), CouponTransformer)
+    return this.item(discount.getRelated('cupon'), CouponTransformer)
   }
 }
 
