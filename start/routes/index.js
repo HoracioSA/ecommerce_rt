@@ -15,7 +15,9 @@
 
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
+// Returns the loged User
 
+Route.get('v1/me','UserController.me').as('me').middleware('auth')
 require('./auth')
 require('./admin')
 require('./client')

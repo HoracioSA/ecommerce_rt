@@ -49,16 +49,16 @@ class CategoryController {
    */
   async store ({ request, response, transform }) {
     try {
+      const {title, description, image_id}= request.all()
+      let category=await Category.create({title, description, image_id})
+      category = await transform.item(category, Transformer)
+      return response.status(201).send(category)
       
     } catch (error) {
       return response.status(400).send({
         message:'Something wrong in storing the data'
       })
     }
-    const {title, description, image_id}= request.all()
-    let category=await Category.create({title, description, image_id})
-    category = await transform.item(category, Transformer)
-    return response.status(201).send(category)
   }
 
   /**
@@ -91,8 +91,8 @@ class CategoryController {
     const {title, description, image_id}= request.all()
     category.merge({title, description, image_id})
     await category.save()
-    category =transform.item(category, Transformer)
-    return response.send(category)
+    category =await transform.item(category, Transformer)
+    return response.status(200).send(category)
   }
 
   /**

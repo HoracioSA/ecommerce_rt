@@ -34,7 +34,7 @@ const Helpers= use('Helpers')
         path = path ? path: Helpers.publicPath('uploads')
         // generate a random name for the file
         const random_name = await str_random(30)
-        let filename =`${new Date().getTime()}-${str_random}.${file.subtype}`
+        let filename =`${new Date().getTime()}-${random_name}.${file.subtype}`
 
         //It renames the file and move to the path
         await file.move(path,{

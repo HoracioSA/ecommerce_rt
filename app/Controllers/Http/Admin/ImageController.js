@@ -4,7 +4,7 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const Image = use('App/Models/Image')
-const Helpers =use('App/Helpers')
+const Helpers =use('Helpers')
 const fs = use('fs')
 const Transformer=use('App/Transformers/Admin/ImageTransformer')
 const {manage_single_upload} = use('App/Helpers')
@@ -126,10 +126,11 @@ class ImageController {
    */
   async update ({ params:{id}, request, response, transform }) {
     var image=await Image.findOrFail(id)
-    image=await transform.item(image,Transformer)
     try {
-      const original_name= request.only(['original_name'])
-      await image.merge(original_name)
+      image.merge(request.only(['original_name']))
+      await image.save()
+      image=await transform.item(image,Transformer)
+      return response.status(200).send(image)
     } catch (error) {
       return response.status(400).send({
         message:'Something wents wrong in update the name of image'
